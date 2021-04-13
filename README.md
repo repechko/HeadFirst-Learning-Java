@@ -40,3 +40,4 @@ import java.util.*
 - default
 - protected
 - public
+Публичные (public) члены *наследуются*, закрытые (private) - *не наследуются*.

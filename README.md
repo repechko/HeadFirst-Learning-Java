@@ -616,13 +616,13 @@ public class MiniMiniMusicApp {
             Track track = seq.createTrack();
 
             ShortMessage a = new ShortMessage();
-            a.setMessage(144, 1, 44, 100);
-            MidiEvent noteOn = new MidiEvent(a, 1);
-            track.add(noteOn);
+            a.setMessage(144, 1, 44, 100); // 144 - тип сообщение (начало проигрывания ноты), 1 - канал, 44 - нота (от 0 до 127, начиная с низких и заканчивая высокими), 100 - скорость и сила нажатия (от 0 до 100)
+            MidiEvent noteOn = new MidiEvent(a, 1); // обозначает время события a - начать проигрывание ноты 44 на первом такте
+            track.add(noteOn); // добавить событие noteOn в трек
 
             ShortMessage b = new ShortMessage();
-            b.setMessage(128, 1, 44, 100);
-            MidiEvent noteOff = new MidiEvent(b, 16);
+            b.setMessage(128, 1, 44, 100); // 128 - конец проигрывания ноты
+            MidiEvent noteOff = new MidiEvent(b, 16); // обозначает время события b - закончить проигрывание ноты 44 на шестнадцатом такте
             track.add(noteOff);
 
             player.setSequence(seq);

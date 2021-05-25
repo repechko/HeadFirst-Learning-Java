@@ -797,8 +797,15 @@ public class MyDrawPanel extends JPanel {
 }
 ```
 
+Результат кода при вызове объекта MyDrawPanel в классе SimpleGui1:
+
+![img_4.png](img_4.png)
+
 Есть множество вариантов изображения графического интерфейса. Например, вставим цветной круг на черном фоне во фрейм, переопределяя уже знакомый нам метод `paintComponent()`:
 ```Java
+import javax.swing.*;
+import java.awt.*;
+
 public class MyDrawPanel extends JPanel {
     public void paintComponent (Graphics g) {
         /* Закрашиваем всю панель черным (цвет по умолчанию).
@@ -813,7 +820,106 @@ public class MyDrawPanel extends JPanel {
 
         Color randomColor = new Color(red, green, blue); // задаем цвет тремя целыми числами, представляющими RGB-значения
         g.setColor(randomColor);
-        g.fillOval(70, 70, 100, 100); // начинаем рисование с 70 пикселей сверху и слева, задаем ширину и высоту по 10 пискелей
+        g.fillOval(70, 70, 100, 100); // начинаем рисование с 70 пикселей сверху и слева, задаем ширину и высоту по 10 пикселей
     }
+}
+```
+Результат кода при вызове объекта MyDrawPanel в классе SimpleGui1:
+
+![img_3.png](img_3.png)
+
+У класса Graphics, содержащего простые методы для рисования и работы с цветом, есть более продвинутый потомок Graphics2D. На самом деле в методе `paintComponent(Graphics)` за ссылкой типа Graphics обычно скрывается объект типа Graphics2D.
+
+Graphics содержит методы `drawImage()`, `drawLine()`, `drawPolygon()`, `drawRect()`, `drawOval()`, `fillRect()`, fillRoundRect()`, `setColor()`. В Graphics2D есть методы `fill3DRect()`, `draw3DRect()`, `rotate()`, `scale()`, `shear()`, `transform()`, `setRenderingHints()`. Но это не полный перечень методов.
+
+Попробуем нарисовать круг, используя в качестве заливки вместо обычного цвета градиент:
+
+```Java
+import javax.swing.*;
+import java.awt.*;
+
+public class MyDrawPanel extends JPanel {
+    public void paintComponent (Graphics g) {
+        Graphics2D g2d = (Graphics2D) g; /* приводим объект Graphics2D, замаскированный под обычный Graphics
+        к его настоящему типу, чтобы иметь возможность вызывать методы, доступные лишь Graphics2D. */
+        
+        /* Задаем градиент цвета. Синий цвет начинается с точки (70, 70), а оранжевый - с точки (150, 150). */
+        GradientPaint gradient = new GradientPaint(70, 70, Color.blue, 150, 150, Color.orange);
+
+        g2d.setPaint(gradient); // назначаем виртуальной кисти градиент вместо сплошного цвета
+        // в комментарии ниже видно, как я попробовал сделать плавающий размер овала - он будет меняться в зависимости от изменения размеров окна
+        //g2d.fillOval(70, 70, (int) (this.getWidth() * 0.7), (int) (this.getHeight() * 0.7));
+        g2d.fillOval(70, 70, 100, 100); // в данном случае овал будет закрашен тем, что находится на кисти g2d - градиентом
+    }
+}
+```
+
+Результат:
+
+![img_6.png](img_6.png)
+
+Тот же код, но с использованием генератора случайных чисел для получения случайных цветов:
+
+```Java
+import javax.swing.*;
+import java.awt.*;
+
+public class MyDrawPanel extends JPanel {
+    public void paintComponent (Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+
+        int red = (int) (Math.random() * 255);
+        int green = (int) (Math.random() * 255);
+        int blue = (int) (Math.random() * 255);
+        Color startColor = new Color(red, green, blue);
+
+        red = (int) (Math.random() * 255);
+        green = (int) (Math.random() * 255);
+        blue = (int) (Math.random() * 255);
+        Color endColor = new Color(red, green, blue);
+
+        GradientPaint gradient = new GradientPaint(70, 70, startColor, 150, 150, endColor);
+
+        g2d.setPaint(gradient);
+        //g2d.fillOval(70, 70, (int) (this.getWidth() * 0.7), (int) (this.getHeight() * 0.7));
+        g2d.fillOval(70, 70, 100, 100);
+    }
+}
+```
+
+Результат:
+
+![img_5.png](img_5.png)
+
+#### Ключевые моменты
+##### События
+- Чтобы создать GUI, начните с окна. Как правило, это JFrame:
+
+`JFrame frame = new JFrame();`
+  
+- Вы можете добавлять виджеты (кнопки, поля ввода и т.д.) в JFrame, используя запис вида:
+
+`frame.getContentPane().add(button);`
+  
+- В отличие от большинства других компонентов, JFrame не позволяет добавлять в него объекты напрямую, поэтому приходится делать это через панель содержимого, принадлежащую JFrame.
+  
+- Чтобы вывести на экран окно (JFrame), нужно сдлеать его видимым и указать размер:
+```Java
+frame.setSize(300, 300);
+frame.setVisible(true);
+```
+
+- Для отслеживания событий нужно обозначить свой интерес к источнику события. Источник события -- это объект (кнопка, переключатель и т.д.), который "запускает" событие, основывая на действиях пользователя.
+
+- Интерфейс слушателя предоставляет источнику возможность обратного вызова, так как интерфейс определяет метод, вызываемый источником события при совершении события.
+
+- Чтобы связать события с источником, вызовите регистрационный метод источника. Методы для регистрации всегда принимают следующий вид: **add<ТипСобытия>Listener**. Например, для регистрации события ActionEvent, генерируемого кнопкой, вызовите:
+
+`button.addActionListener(this);`
+
+- Создавайте интерфейс слушателя, релизуя все методы для обработки событий интерфейса. Поместите свой код обработки событий в метод обратного вызова слушателя. Для ActionEvent это такой метод:
+```Java
+public void actionPerformed(ActionEvent event) {
+    button.setText("you clicked!");
 }
 ```

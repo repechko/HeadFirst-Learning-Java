@@ -830,7 +830,7 @@ public class MyDrawPanel extends JPanel {
 
 У класса Graphics, содержащего простые методы для рисования и работы с цветом, есть более продвинутый потомок Graphics2D. На самом деле в методе `paintComponent(Graphics)` за ссылкой типа Graphics обычно скрывается объект типа Graphics2D.
 
-Graphics содержит методы `drawImage()`, `drawLine()`, `drawPolygon()`, `drawRect()`, `drawOval()`, `fillRect()`, fillRoundRect()`, `setColor()`. В Graphics2D есть методы `fill3DRect()`, `draw3DRect()`, `rotate()`, `scale()`, `shear()`, `transform()`, `setRenderingHints()`. Но это не полный перечень методов.
+Graphics содержит методы `drawImage()`, `drawLine()`, `drawPolygon()`, `drawRect()`, `drawOval()`, `fillRect()`, `fillRoundRect()`, `setColor()`. В Graphics2D есть методы `fill3DRect()`, `draw3DRect()`, `rotate()`, `scale()`, `shear()`, `transform()`, `setRenderingHints()`. Но это не полный перечень методов.
 
 Попробуем нарисовать круг, используя в качестве заливки вместо обычного цвета градиент:
 

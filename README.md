@@ -1003,6 +1003,7 @@ public class SimpleGui3C implements ActionListener {
 ```
 
 Результат кода - программа, меняющая цвет круга по нажатию кнопки "Change colors":
+
 ![img_8.png](img_8.png)
 ![img_9.png](img_9.png)
 ![img_10.png](img_10.png)

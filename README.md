@@ -923,3 +923,86 @@ public void actionPerformed(ActionEvent event) {
     button.setText("you clicked!");
 }
 ```
+
+##### Графика
+- Объект события передается в метод обработки события и несет с собой информацию о событии, в том числе его источник.
+
+- Вы модете рисовать думерную графику прямо на виджете.
+
+- Вы можете помешать GIF- или JPEG-изображения прямо на виджет.
+
+- Чтобы рисовать собственные изображения (включая GIF или JPEG), создайте подкласс JPanel и замените метод paintComponent().
+
+- Метод paintComponent() вызывается графической системой. **Вы никогда не вызываете его сами**. Аргументом для paintComponent() является объект Graphics, который предоставляет поверхность для рисования, размещаему на экране. Вы не можете сами создать этот обхект.
+
+- Из объекта Graphics (параметра paintComponent) вызываются следующие типичные методы:
+```Java
+graphics.setColor(Color.blue);
+g.fillRect(20, 50, 100, 120);
+```
+
+- Чтобы создать JPG-изображение, добавьте объект Image:
+```Java
+Image image = new ImageIcon("catzilla.jpg").getImage();
+```
+и нарисуйте изображение:
+```Java
+g.drawImage(image, 3, 4, this); /* 3 и 4 - координаты для верхнего левого угла картинки. Эти
+числа всегда относятся к виджету (в данном случае к нашему наследнику JPanel), а не всему фрейму). */
+```
+
+- Объект, ссылка на который имеет тип Graphics и передается в качестве параметра для метода paintComponent(), фактически является экземпляром класса Graphics2D. Этот класс содержит множество методов, включая такие: `fill3DRect()`, `draw3DRect()`, `rotate()`, `scale()`, `shear()`, `transform()`.
+
+- Для вызова методов, предоставляемых объектом Graphics2D, нужно перевести тип параметра из Graphics в Graphics2D:
+
+`Graphics2D g2d = (Graphics2D) g;`
+
+#### Компоновка графических элементов
+
+Мы можем добавлять по несколько графических элементов в один фрейм. Раньше мы пользовались конструкцией `frame.getContentPane.add(button);`. На самом деле мы схитрили, когда добавляли кнопку во фрейм таким образом. На деле фрейм делится на 5 областей. Их также можно дробить на более мелкие зоны. На скриншоте ниже видно деление этих зон. По умолчанию, когда мы пишем `frame.getContentPane.add(button);`, кнопка добавляется в центр. Явно прописывается зона так: `frame.getContentPane().add(BorderLayout.SOUTH, button);`.
+
+![img_7.png](img_7.png)
+
+Используя знания о зонах внутри фрейма, а также объединяя возможности кнопок и графики, напишем код, который изменяет цвета градиента круга по нажатию на кнопку:
+```Java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class SimpleGui3C implements ActionListener {
+    JFrame frame;
+
+    public static void main(String[] args) {
+        SimpleGui3C gui = new SimpleGui3C();
+        gui.go();
+    }
+
+    public void go() {
+        frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JButton button = new JButton("Change colors");
+        button.addActionListener(this);
+
+        MyDrawPanel panel = new MyDrawPanel();
+
+        //Добавляем два виджета (кнопку и панель для рисования) в две области фрейма
+        frame.getContentPane().add(BorderLayout.SOUTH, button);
+        frame.getContentPane().add(BorderLayout.CENTER, panel);
+        frame.setSize(300, 300);
+        frame.setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        /* Когда пользователь нажимает кнопку, вызываем для фрейма метод repaint().
+         * Это значит, что метод paintComponent() вызывается для каждого виджета во фрейме. */
+        frame.repaint();
+    }
+}
+```
+
+Результат кода - программа, меняющая цвет круга по нажатию кнопки "Change colors":
+![img_8.png](img_8.png)
+![img_9.png](img_9.png)
+![img_10.png](img_10.png)

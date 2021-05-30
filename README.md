@@ -749,7 +749,8 @@ public class SimpleGui1B implements ActionListener {
         /* Регистрируем нашу заинтересованность в кнопке: Данный метод
         добавляет ссылку на наш объект в список слушателей кнопки.
         Передаваемый аргумент ДОЛЖЕН быть объектом класса, реализующего
-        ActionListener. this указывает, что мы передаем объект ЭТОГО класса.
+        ActionListener. this указывает, что мы передаем объект, вызвавший 
+        метод, то есть объект класса SimpleGui1B.
         Когда пользователь нажимает на кнопку, она запускает событие,
         вызывая метод actionPerformed(), принадлежащий каждому слушателю в списке. */
         button.addActionListener(this);
@@ -985,7 +986,8 @@ public class SimpleGui3C implements ActionListener {
         JButton button = new JButton("Change colors");
         button.addActionListener(this);
 
-        MyDrawPanel panel = new MyDrawPanel();
+        MyDrawPanel panel = new MyDrawPanel(); // метод из панели рисования MyDrawPanel под названием paintComponent() 
+        // вызывается при каждом нажатии кнопки 
 
         //Добавляем два виджета (кнопку и панель для рисования) в две области фрейма
         frame.getContentPane().add(BorderLayout.SOUTH, button);
@@ -1002,8 +1004,117 @@ public class SimpleGui3C implements ActionListener {
 }
 ```
 
-Результат кода - программа, меняющая цвет круга по нажатию кнопки "Change colors":
+Результат кода — программа, меняющая цвет круга по нажатию кнопки "Change colors":
 
 ![img_8.png](img_8.png)
 ![img_9.png](img_9.png)
 ![img_10.png](img_10.png)
+
+Теперь попробуем добавить две кнопки во фрейм, для этого нам придется слушать два события. В этом нам может помочь внутренний класс. Это класс, который вложен внутрь другого класса. При этом внутренний класс имеет доступ ко всем методам и переменным внешнего класса, включая приватные. Внутренний класс использует эти переменные так, будто они объявлены в нем самом. Синтаксис внутреннего класса:
+```Java
+class MyOuterClass {
+    private int x;
+    class MyInnerClass {
+        void go() {
+            x = 42; // используем x как будто это переменная внутреннего класса
+        }
+    }
+}
+```
+
+Конечно, когда мы говорили, что внутренний класс может получить доступ к полям внешнего, мы имели в виду, что экземпляр внутреннего класса может иметь доступ к полям экземпляра внешнего класса, но не любого внешнего, а того, с которым он связан. Внутренний объект будет привязан к определенному внешнему объекту в куче. Поэтому процесс создания экземпляров таких классов выглядит так:
+1. Создаем экземпляр внешнего класса
+1. Создаем экземпляр внутреннего класса, используя экземпляр внешнего класса.
+1. Внешний и внутренний объекты теперь связаны.
+
+Код внешнего класса может создать экземпляр внутреннего класса точно так же, как он бы создал экземпляр любого другого класса - через оператор `new`:
+```Java
+class MyOuterClass {
+    private int x; // внешний класс содержит приватную переменную экземпляра x
+
+    MyInnerClass inner = new MyInnerClass(); // создаем экземпляр внутреннего класса
+    
+    public void doStuff() {
+        inner.go(); // вызываем метод внутреннего класса
+    }
+    
+    class MyInnerClass {
+        void go() {
+            x = 42; // метод внутреннего класса использует переменную экземпляра x внешнего класса, как будто она 
+            // принадлежит внутреннему классу
+        }
+    }
+}
+```
+
+Также можно создать экземпляр внутреннего класса из кода, запущенного за пределами внешнего класса, но придется использовать специальный синтаксис. Вероятнее всего, этот навык нам никогда не придется применять, но все же:
+```Java
+class Foo {
+    public static void main(String[] args) {
+        MyOuter outerObj = new MyOuter();
+        MyOuter.MyInner inner = outerObj.new MyInner();
+    }
+}
+```
+
+Ценность внутренних классов в том, что мы можем в нескольких внутренних классах реализовывать одни и те же методы какого-то интерфейса, создавая различное поведение, тогда как в обычном классе мы не можем писать два раза один и тот же метод. Нам, может, понадобиться иметь разные реализации одного метода, например, если мы хотим иметь три кнопки, которые имеют разную реакцию на события. Тогда мы создадим три внутренних класса, реализующих интерфейс ActionListener. Тогда каждый класс будет иметь свою реализацию метода `actionPerformed()`.
+
+С учетом знаний о внутренних классах сделаем так, чтобы во фрейме было две кнопки, выполняющих различные действия:
+```Java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+/* В этот раз главный класс Gui не реализует ActionListener */
+public class TwoButtons {
+    JFrame frame;
+    JLabel label;
+
+    public static void main(String[] args) {
+        TwoButtons two = new TwoButtons();
+        two.go();
+    }
+
+    public void go() {
+        frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        /* Вместо того чтобы передавать this методу регистрации слушателя кнопки,
+        мы передаем ему экземпляр соответствующего класса-слушателя */ 
+        JButton labelButton = new JButton("Change label");
+        labelButton.addActionListener(new LabelListener());
+
+        JButton colorButton = new JButton("Change circle");
+        colorButton.addActionListener(new ColorListener());
+
+        label = new JLabel("I'm a label");
+        MyDrawPanel panel = new MyDrawPanel();
+
+        frame.getContentPane().add(BorderLayout.CENTER, panel);
+        frame.getContentPane().add(BorderLayout.SOUTH, colorButton);
+        frame.getContentPane().add(BorderLayout.EAST, labelButton);
+        frame.getContentPane().add(BorderLayout.WEST, label);
+
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+    }
+
+    /* Теперь у нас два ActionListener в одном классе */
+    class LabelListener implements ActionListener {
+        public void actionPerformed (ActionEvent e) {
+            label.setText("Ouch!"); // внутренний класс знает о label
+        }
+    }
+    class ColorListener implements ActionListener {
+        public void actionPerformed (ActionEvent e) {
+            frame.repaint(); // внутренний класс использует переменную экземпляра frame без явной ссылки 
+            // на объект внешнего класса
+        }
+    }
+}
+```
+
+![img_11.png](img_11.png)
+![img_12.png](img_12.png)
+

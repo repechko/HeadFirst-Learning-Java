@@ -1118,3 +1118,65 @@ public class TwoButtons {
 ![img_11.png](img_11.png)
 ![img_12.png](img_12.png)
 
+Помимо реализации интерфейса, который не реализуется внешним классом, внутренний класс может наследовать класс, который не наследуется его внешним классом. Таким образом, внутренний и внешний класс будут находиться в разных иерархиях наследования. Так, например, мы можем создать программу, в которой круг перемещается из одного конца фрейма в другой. Для этого вложим класс JPanel, содержащий код для цветного круга, в наш класс Gui:
+```Java
+import javax.swing.*;
+import java.awt.*;
+
+public class SimpleGuiAnimation {
+    int x = 70, y = 70; // задаем начальные координаты круга
+    public static void main(String[] args) {
+        SimpleGuiAnimation gui = new SimpleGuiAnimation();
+        gui.go();
+    }
+
+    public void go(){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        MyDrawPanelInner panel = new MyDrawPanelInner();
+
+        frame.getContentPane().add(panel);
+        frame.setSize(300, 300);
+        frame.setVisible(true);
+
+        for(int i = 0; i < 130; i++) { // повторяем действие 130 раз
+            x++; // увеличиваем на единицу координаты x и y
+            y++;
+            
+            // Говорим панели, чтобы она себя перерисовала (и мы могли увидеть круг на новом месте).
+            panel.repaint();
+            
+            /* Немного замедляем процесс (иначе он будет выполняться так быстро, что мы не увидим никакого движения.
+                    Это тема потоков, до нее мы дойдем в 15 главе.
+             */
+            try {
+                Thread.sleep(50);
+            } catch (Exception ex){}
+        }
+    }
+
+    /* Теперь он стал внутренним классом. */
+    public class MyDrawPanelInner extends JPanel{
+        public void paintComponent (Graphics g) {
+            /* Делаем фон белым перед каждой перерисовкой круга, чтобы круг сдвигался,
+            а не размазывался (по факту закрашиваем белым прямоугольник размером во весь фрейм. */
+            g.setColor(Color.white);
+            g.fillRect(0,0, this.getWidth(), this.getHeight());
+
+            g.setColor(Color.green);
+            g.fillOval(x, y, 40, 40); // используем постоянно обновляющиеся координаты x и y внешнего класса
+        }
+    }
+}
+
+```
+
+Вот как выглядит "размазывание" круга, если не перезаливать фон белым каждый раз:
+
+![img_13.png](img_13.png)
+
+Вот как выглядит перемещение круга, если перед каждым смещением круга заливать фон белым:
+
+![img_14.png](img_14.png)
+![img_15.png](img_15.png)

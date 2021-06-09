@@ -1180,3 +1180,129 @@ public class SimpleGuiAnimation {
 
 ![img_14.png](img_14.png)
 ![img_15.png](img_15.png)
+
+Теперь попробуем написать программу, которая будет сама воспроизводить случайные звуки, при этом выводя цветные градиентные прямоугольники разных цветов и размеров:
+```Java
+import javax.sound.midi.*;
+import javax.swing.*;
+import java.awt.*;
+
+public class MiniMusicPlayer3 {
+    static JFrame frame = new JFrame("Мой первый музыкальный клип");
+    static MyDrawPanelInner panel;
+
+    public static void main(String[] args) {
+        MiniMusicPlayer3 mini = new MiniMusicPlayer3();
+        mini.go();
+    }
+
+    public void setUpGui() {
+        panel = new MyDrawPanelInner();
+        frame.setContentPane(panel);
+        frame.setBounds(30, 30, 300, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
+    public void go() {
+        setUpGui();
+
+        try {
+            Sequencer sequencer = MidiSystem.getSequencer(); // создаем синтезатор
+            sequencer.open(); // открываем его
+            /* Регистрируем события синтезатором. Метод, отвечающий за регистрацию, принимает объект
+             * слушателя и целочисленный массив, представляющий собой список ControllerEvent, которые
+             * нам нужны. Нас интересует только одно событие - № 127. */
+            sequencer.addControllerEventListener(panel, new int[] {127});
+            Sequence seq = new Sequence(Sequence.PPQ, 4); // создаем последовательность
+            Track track = seq.createTrack(); // и дорожку
+
+            int r = 0; // число для случайного выбора проигрываемых нот
+            for (int i = 0; i < 60; i += 4) {
+                r = (int) ((Math.random() * 50) + 1);
+                track.add(makeEvent(144, 1, r, 100, i));
+                
+                /* Таким образом мы ловим ритм - добавляем наше собственное событие ControllerEvent
+                (176 означает, что тип события - ControllerEvent) с аргументом для события номер № 127.
+                Оно ничего не будет делать. Мы вставляем его лишь для того, чтобы иметь возможность
+                реагировать на воспроизведение каждой ноты. Другими словами, его единственная цель -
+                запуск чего-нибудь, что можно отслеживать (мы не можем следить за событиями
+                включения/выключения воспроизведения нот). Заметим, что мы запускаем это событие в тот
+                же самый момент, когда включается воспроизведение ноты. Поэтому когда произойдет
+                событие включения воспроизведения ноты, мы сразу узнаем об этом, так как наше событие
+                запустится в то же самое время. */
+                
+                track.add(makeEvent(176, 1, 127, 0, i));
+                track.add(makeEvent(128, 1, r, 100, i + 2));
+            }
+
+            sequencer.setSequence(seq);
+            sequencer.start();
+            sequencer.setTempoInBPM(120);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /* Это вспомогательный метод, который создает сообщения и возвращает MidiEvent.
+     * Первые четыре параметра метода нужны для создания сообщения, а пятый - для события. */
+    public MidiEvent makeEvent (int command, int channel, int note, int pressForce, int tick) {
+        MidiEvent event = null;
+        try {
+            ShortMessage message = new ShortMessage();
+            message.setMessage(command, channel, note, pressForce);
+            event = new MidiEvent(message, tick);
+        } catch (Exception ex) {}
+        return event;
+    }
+}
+
+/* Нам нужно отслеживать события ControllerEvent, поэтому мы реализуем интерфейс
+слушателя. Теперь у нас панель для рисования сама является слушателем. */
+class MyDrawPanelInner extends JPanel implements ControllerEventListener{
+    boolean msg = false; // присваиваем флагу значение false и будем менять его, когда получим событие
+
+    // метод обработки события из интерфейса слушателя события ControllerEvent
+    public void controlChange(ShortMessage event) {
+        // Мы получили событие, поэтому присваиваем флагу значение true и вызываем repaint().
+        msg = true;
+        repaint();
+    }
+
+    public void paintComponent(Graphics g) {
+        /* Мы используем флаг msg, потому что другие объекты могут запустить метод repaint(),
+        а мы хотим рисовать только тогда, когда произойдет событие ControllerEvent */
+        if (msg) {
+            /* Весь код, выполняющийся по условию, нужен для генерации 
+            случайного градиента и рисования полупроизвольного прямоугольника */
+            Graphics2D g2d = (Graphics2D) g;
+
+            int red = (int) (Math.random() * 255);
+            int green = (int) (Math.random() * 255);
+            int blue = (int) (Math.random() * 255);
+            Color startColor = new Color(red, green, blue);
+
+            red = (int) (Math.random() * 255);
+            green = (int) (Math.random() * 255);
+            blue = (int) (Math.random() * 255);
+            Color endColor = new Color(red, green, blue);
+
+            int height = (int) ((Math.random() * 120) + 10);
+            int width = (int) ((Math.random() * 120) + 10);
+
+            int x = (int) ((Math.random() * 40) + 10);
+            int y = (int) ((Math.random() * 40) + 10);
+
+            GradientPaint gradient = new GradientPaint(x, y, startColor, x + width, y + height, endColor);
+            g2d.setPaint(gradient);
+            
+            g2d.fillRect(x, y, height, width);
+            msg = false;
+        }
+    }
+}
+```
+
+Как результат получаем программу со следующим графическим выводом:
+
+![img_17.png](img_17.png)

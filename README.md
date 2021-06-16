@@ -1306,3 +1306,198 @@ class MyDrawPanelInner extends JPanel implements ControllerEventListener{
 Как результат получаем программу со следующим графическим выводом:
 
 ![img_17.png](img_17.png)
+
+### Глава № 13. Работа с библиотекой Swing
+Компонент - это правильное название для виджета. Фрейм, панель, кнопка, прокручиваемый список, переключатель и т.д. - все это компоненты. В Swing практически все компоненты могут включать в себя другие компоненты. Но обычно *интерактивные* компоненты, такие как кнопки и списки, вкладываются в *фоновые* - фреймы и панели.
+
+Диспетчер компоновки - Java-объект, связанный с определенным компонентом, почти всегда фоновым. Он управляет компонентами, которые содержатся внутри него и с которыми он связан. Диспетчер компоновки управляет размером и положением компонентов. Таким образом, если фрейм включает в себя панель, а она, в свою очередь, содержит кнопку, то диспетчер компоновки панели управляет размером и положением кнопки, тогда как диспетчер компоновки фрейма - размером и положением панели. С другой стороны, кнопка не нуждается в диспетчере компоновки, так как не содержит иных компонентов.
+
+Таким образом, если мы напишем такой код:
+```Java
+JPanel panelA = new JPanel();
+JPanel panelB = new JPanel();
+panelB.add(new JButton("Кнопка 1"));
+panelB.add(new JButton("Кнопка 2"));
+panelB.add(new JButton("Кнопка 3"));
+panelA.add(panelB);
+```
+то мы получим иерархию, в которой диспетчер компоновки панели B управляет размером и положением кнопок, а диспетчер компоновки панели А - размером и положением панели B. То есть диспетчер компоновки управляет объектами добавленными непосредственно на него и содержит под контролем только один уровень. Код выше создает такую структуру:
+
+![img_18.png](img_18.png)
+
+#### Три главных диспетчера компоновки: border, flow и box
+***BorderLayout*** - диспетчер, который делит фоновую область на пять частей, в каждую из которых можно поместить один компонент. Компоненты, размещенные этим диспетчером, обычно не имеют предпочтений по размерам. ***BorderLayout - по умолчанию диспетчер компоновки фрейма.***
+
+![img_19.png](img_19.png)
+
+Диспетчер ***FlowLayout*** работает с компонентами наподобие текстового процессора. Каждый компонент имеет желаемый размер, и все они размещаются слева направо, в порядке добавления, с возможностью переноса на новую строку. Когда компонент не помещается по горизонтали, он переносится на следующую строку в компоновке (но это работает только если панель добавлена в центральную область фрейма. Иначе компоненты будут следовать друг за другом в строчку без переноса. Ниже в примерах кода есть случай, когда кнопки не переносятся. ***FlowLayout - по умолчанию диспетчер компоновки для панели.***
+
+![img_20.png](img_20.png)
+
+Диспетчер ***BoxLayout*** похож на FlowLayout тем, что все его компоненты получают собственный размер и располагаются в порядке добавления. Однако, в отличие от FlowLayout, BoxLayout позволяет расположить их вертикально (или горизонтально, но обычно нас интересует вертикальное расположение). Все происходит, как во FlowLayout, но вместо автоматического переноса компонентов мы можем добавить что-то вроде разрыва строки и **заставить** компонент перенестись на новую строку.
+
+![img_21.png](img_21.png)
+
+BorderLayout содержит пять областей (EAST, WEST, NORTH, SOUTH и CENTER). Компоненты, размещенные в областях NORTH и SOUTH, занимают всю ширину фрейма, но сохраняют желаемую высоту (например, для кнопки она зависит от размера шрифта). Компоненты в областях EAST и WEST занимают всю высоту фрейма, но имеют желаемую ширину, которая для кнопки, например, зависит от длины ее названия. Если у нас заняты все 4 крайних области, то NORTH и SOUTH будут занимать всю ширину фрейма, а EAST и WEST - оставшееся от NORTH и SOUTH пространство по высоте. В конце концов CENTER (область по умолчанию) занимает место, оставшееся от 4 других областей.
+
+![img_24.png](img_24.png)
+
+Если вносить кнопки на панель, как в коде ниже, то кнопки будут выстраиваться друг за другом слева направо, до тех пор пока первая из кнопок не выйдет за пределы фрейма:
+```Java
+package sec02;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Panel1 {
+    public static void main(String[] args) {
+        Panel1 gui = new Panel1();
+        gui.go();
+    }
+
+    public void go(){
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+
+        JButton button = new JButton("shock me");
+        JButton buttonTwo = new JButton("bliss");
+        JButton buttonThree = new JButton("huh?");
+        JButton buttonFour = new JButton("again");
+
+        panel.add(button);
+        panel.add(buttonTwo);
+        panel.add(buttonThree);
+        panel.add(buttonFour);
+
+        frame.getContentPane().add(BorderLayout.EAST, panel);
+        frame.setSize(250, 200);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+```
+
+![img_22.png](img_22.png)
+
+Это связано с тем, что FlowLayout, устанавливаемый по умолчанию для панели, выстраивает компоненты друг за другом в одну строку. Если добавить панель в центральную область фрейма, то кнопки таки начнут переноситься:
+
+```Java
+public class Panel1 {
+    public static void main(String[] args) {
+        Panel1 gui = new Panel1();
+        gui.go();
+    }
+
+    public void go(){
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+
+        JButton button = new JButton("shock me");
+        JButton buttonTwo = new JButton("bliss");
+        JButton buttonThree = new JButton("huh?");
+        JButton buttonFour = new JButton("again");
+        JButton buttonFive = new JButton("something new");
+
+        panel.add(button);
+        panel.add(buttonTwo);
+        panel.add(buttonThree);
+        panel.add(buttonFour);
+        panel.add(buttonFive);
+
+        frame.getContentPane().add(BorderLayout.CENTER, panel);
+        frame.setSize(250, 200);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+```
+
+![img_25.png](img_25.png)
+
+Если же мы поменяем диспетчер компоновки на BoxLayout, то сможем выстраивать кнопки сверху вниз, не расширяя до бесконечности панель, на которую они добавляются, и используя любую предпочитаемую область фрейма:
+```Java
+import javax.swing.*;
+import java.awt.*;
+
+public class Panel1 {
+    public static void main(String[] args) {
+        Panel1 gui = new Panel1();
+        gui.go();
+    }
+
+    public void go(){
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.gray); // раскрашиваем панель серым цветом, чтобы она выделялась на фоне фрейма
+
+        /* Изменяем диспетчер компоновки на новый экземпляр BoxLayout. Конструктору диспетчера
+        BoxLayout нужно знать, какие объекты он размещает (в нашем случае это панель) и какую
+        ось нужно использовать (в нашем случае это ось ординат Y_AXIS для вертикального отображения). */
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JButton button = new JButton("shock me");
+        JButton buttonTwo = new JButton("bliss");
+        JButton buttonThree = new JButton("huh?");
+        JButton buttonFour = new JButton("again");
+
+        panel.add(button);
+        panel.add(buttonTwo);
+        panel.add(buttonThree);
+        panel.add(buttonFour);
+
+        frame.getContentPane().add(BorderLayout.EAST, panel);
+        frame.setSize(250, 200);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+```
+
+![img_23.png](img_23.png)
+
+Теперь можно заметить, как панель сузилась. Она сообщает фрейму, что ей хватит места, сколько нужно для самой широкой кнопки "shock me".
+
+Метод `pack()` позволяет области CENTER диспетчера BorderLayout получать не оставшееся от других место, а стать отправной точкой, от размера которой отталкиваются все остальные компоненты фрейма. Метод использует полный предпочитаемый размер центрального компонента, затем определяет размер фрейма, взяв центр за отправную точку, и в итоге выстраивает все, что осталось, основываясь на том, что находится в других областях.
+
+```Java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class TextArea1 implements ActionListener {
+    JTextArea text;
+
+    public static void main(String[] args) {
+        TextArea1 gui = new TextArea1();
+        gui.go();
+    }
+
+    public void go() {
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+        JButton button = new JButton("Just Click Me");
+        button.addActionListener(this);
+        text = new JTextArea(10, 20);
+        text.setLineWrap(true);
+
+        JScrollPane scroller = new JScrollPane(text);
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        panel.add(scroller);
+
+        frame.getContentPane().add(BorderLayout.CENTER, panel);
+        frame.getContentPane().add(BorderLayout.SOUTH, button);
+
+        frame.setSize(350, 300);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        text.append("button clicked \n");
+    }
+}
+```

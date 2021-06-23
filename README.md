@@ -31,15 +31,21 @@ class Employee {
 - Фабричный метод может вернуть уже созданный объект в отличие от конструктора, который всегда создает новый экземпляр.
 
 ---
-| Название главы | Страницы | Тезисы |
-| :---: | :---: | :---: |
-| ~~Использование библиотеки Java~~ | 149 - 188 (40 страниц) | Java позволяет использовать встроенные библиотеки (Java API) для ускорения написания кода. |
-| ~~Прекрасная жизнь в Объектвилле~~ | 189 - 220 (32 страницы) | Наследование и полиморфизм |
-| ~~Серьезный полиморфизм~~ | 221 - 258 (38 страниц) | Интерфейсы и абстрактные классы |
-| ~~Жизнь и смерть объектов~~ | 259 - 295 (37 страниц) | Конструкторы и сборщик мусора |
-| ~~Числа имеют значение~~ | 296 - 337 (42 страницы) | Числа и статические члены класса |
-| ~~Опасное поведение~~ | 338 - 375 (38 страниц) | Обработка исключений |
-| Графический пользовательский интерфейс | 376 - 421 (46 страниц) | Очень графическая история |
+| Номер главы | Название главы | Страницы | Тезисы |
+| :---: | :---: | :---: | :---: |
+| 6 | ~~Использование библиотеки Java~~ | 149 - 188 (40 страниц) | Java позволяет использовать встроенные библиотеки (Java API) для ускорения написания кода. |
+| 7 | ~~Прекрасная жизнь в Объектвилле~~ | 189 - 220 (32 страницы) | Наследование и полиморфизм |
+| 8 | ~~Серьезный полиморфизм~~ | 221 - 258 (38 страниц) | Интерфейсы и абстрактные классы |
+| 9 | ~~Жизнь и смерть объектов~~ | 259 - 295 (37 страниц) | Конструкторы и сборщик мусора |
+| 10 | ~~Числа имеют значение~~ | 296 - 337 (42 страницы) | Числа и статические члены класса |
+| 11 | ~~Опасное поведение~~ | 338 - 375 (38 страниц) | Обработка исключений |
+| 12 | ~~Графический пользовательский интерфейс~~ | 376 - 421 (46 страниц) | Очень графическая история |
+| 13 | ~~Работа с библиотекой Swing~~ | 422 - 451 (30 страниц) | Улучшай свои навыки |
+| 14 | Сериализация и ввод/вывод файлов | 452 - 492 (41 страница) | Сохранение объектов |
+| 15 | Сеть и потоки | 493 - 550 (58 страниц) | Устанавливаем соединение |
+| 16 | Коллекции и обобщения | 551 - 602 (52 страницы) | Структуры данных |
+| 17 | Пакеты, JAVA-архивы и развертывание приложения | 603 - 627 (25 страниц) | Выпусти свой код |
+| 18 | Удаленное развертывание с помощью RMI | 628 - 669 (42 страницы) | Распределенные вычисления |
 
 ---
 ### Глава № 6. Использование библиотеки Java
@@ -1459,6 +1465,16 @@ public class Panel1 {
 
 Метод `pack()` позволяет области CENTER диспетчера BorderLayout получать не оставшееся от других место, а стать отправной точкой, от размера которой отталкиваются все остальные компоненты фрейма. Метод использует полный предпочитаемый размер центрального компонента, затем определяет размер фрейма, взяв центр за отправную точку, и в итоге выстраивает все, что осталось, основываясь на том, что находится в других областях.
 
+Диспетчеры компоновки могут быть отключены, и тогда можно будет задавать положение элементам вручную. Но это не лучший вариант, так как на разных JVM кнопки могут иметь разную форму, при динамическом обновлении компонентов они могут накладываться друг на друга — от всех этих подводных камней и защищают диспетчеры компоновки.
+
+Классы пакета `javax.swing`:
+- JTextField - однострочное текстовое поле
+- JTextArea - в отличие от JTextField может вмещать в себя несколько строк текста
+- JScrollPane - может вмещать в себя текстовую область, добавляет полосы прокрутки
+- JCheckBox - чекбокс с флажком
+- JList - список. Принимает массив объектов любого типа. Им необязательно иметь строковый тип, но они будут отображаться как String.
+
+Напишем программу, которая содержит текстовое поле с возможностью вертикального скроллинга. Во фрейме будут кнопка и панель с текстовым полем. При нажатии на кнопку в поле будет всплывать фраза "button clicked".
 ```Java
 import javax.swing.*;
 import java.awt.*;
@@ -1478,14 +1494,14 @@ public class TextArea1 implements ActionListener {
         JPanel panel = new JPanel();
         JButton button = new JButton("Just Click Me");
         button.addActionListener(this);
-        text = new JTextArea(10, 20);
-        text.setLineWrap(true);
+        text = new JTextArea(10, 20); // задаем количество строки - 10 и столбцов - 20 для текстовой области
+        text.setLineWrap(true); // задаем тексту возможность переноса
 
         JScrollPane scroller = new JScrollPane(text);
-        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); // добавляем вертикальную полосу прокрутки
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); // отключаем горизонтальную
 
-        panel.add(scroller);
+        panel.add(scroller); // на панель добавляется только scroller, текст уже добавлен в блок прокрутки
 
         frame.getContentPane().add(BorderLayout.CENTER, panel);
         frame.getContentPane().add(BorderLayout.SOUTH, button);
@@ -1495,9 +1511,298 @@ public class TextArea1 implements ActionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    // задаем действие по нажатию кнопки - добавляется текст "кнопка нажата" с переходом на следующую строку
     @Override
     public void actionPerformed(ActionEvent e) {
         text.append("button clicked \n");
     }
 }
 ```
+
+![img_26.png](img_26.png)
+
+Точно так же мы можем добавить на панель прокручиваемый список и чекбокс (ниже представлен только фрагмент кода, который встраивается в класс TextArea1 из блока выше):
+```Java
+/* Чекбокс с крупным шрифтом */
+JCheckBox check = new JCheckBox("On");
+check.setFont(new Font("serif", Font.BOLD, 28));
+panel.add(check);
+
+/* Список высотой в четыре элемента с вертикальной полосой прокрутки и возможностью выбора одного элемента */
+String[] listEntries = {"one", "two", "three", "four", "five", "six", "seven", "eight"};
+JList list = new JList(listEntries);
+JScrollPane scroller = new JScrollPane(list);
+list.setVisibleRowCount(4);
+list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+list.setFont(new Font("serif", Font.BOLD, 28));
+
+scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+panel.add(scroller);
+```
+
+![img_28.png](img_28.png)
+
+Напишем программу, в которой будут реализованы шестнадцать тактов для шестнадцати инструментов. Также будут чекбоксы для выбора того, в какие такты каким инструментам играть, а также кнопки для старта и остановки воспроизведения, увеличения и уменьшения скорости воспроизведения. Проигрывание композиции будет зациклено.
+
+```Java
+package sec02.MusicPLayer;
+
+import java.awt.*;
+import javax.swing.*;
+import javax.sound.midi.*;
+import java.util.*;
+import java.awt.event.*;
+
+public class BeatBox {
+
+    JPanel mainPanel;
+    ArrayList<JCheckBox> checkboxList;
+    Sequencer sequencer;
+    Sequence sequence;
+    Track track;
+    JFrame theFrame;
+
+    String[] instrumentNames = {"Bass Drum", "Closed Hi-Hat",
+            "Open Hi-Hat","Acoustic Snare", "Crash Cymbal", "Hand Clap",
+            "High Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga",
+            "Cowbell", "Vibraslap", "Low-mid Tom", "High Agogo",
+            "Open Hi Conga"};
+    int[] instruments = {35,42,46,38,49,39,50,60,70,72,64,56,58,47,67,63};
+
+    public static void main(String[] args) {
+        new BeatBox().buildGui();
+    }
+
+    public void buildGui(){
+        theFrame = new JFrame("Cyber BeatBox");
+        theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        BorderLayout layout = new BorderLayout();
+        JPanel background = new JPanel(layout);
+        background.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        checkboxList = new ArrayList<JCheckBox>();
+        Box buttonBox = new Box(BoxLayout.Y_AXIS);
+
+        JButton start = new JButton("Start");
+        start.addActionListener(new MyStartListener());
+        buttonBox.add(start);
+
+        JButton stop = new JButton("Stop");
+        stop.addActionListener(new MyStopListener());
+        buttonBox.add(stop);
+
+        JButton upTempo = new JButton("Tempo Up");
+        upTempo.addActionListener(new MyUpTempoListener());
+        buttonBox.add(upTempo);
+
+        JButton downTempo = new JButton("Tempo Down");
+        downTempo.addActionListener(new MyDownTempoListener());
+        buttonBox.add(downTempo);
+
+        Box nameBox = new Box(BoxLayout.Y_AXIS);
+        for (int i = 0; i < 16; i++) {
+            nameBox.add(new Label(instrumentNames[i]));
+        }
+
+        background.add(BorderLayout.EAST, buttonBox);
+        background.add(BorderLayout.WEST, nameBox);
+
+        theFrame.getContentPane().add(background);
+
+        GridLayout grid = new GridLayout(16, 16);
+        grid.setVgap(1);
+        grid.setHgap(2);
+        mainPanel = new JPanel(grid);
+        background.add(BorderLayout.CENTER, mainPanel);
+
+        for (int i = 0; i < 256; i++) {
+            JCheckBox c = new JCheckBox();
+            c.setSelected(false);
+            checkboxList.add(c);
+            mainPanel.add(c);
+        }
+
+        setUpMidi();
+
+        theFrame.setBounds(50,50,300,300);
+        theFrame.pack();
+        theFrame.setVisible(true);
+    }
+
+    public void setUpMidi() {
+        try {
+            sequencer = MidiSystem.getSequencer();
+            sequencer.open();
+            sequence = new Sequence(Sequence.PPQ, 4);
+            track = sequence.createTrack();
+            sequencer.setTempoInBPM(120);
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    public void buildTrackAndStart() {
+        int[] trackList = null;
+
+        sequence.deleteTrack(track);
+        track = sequence.createTrack();
+
+        for (int i = 0; i < 16; i++) {
+            trackList = new int[16];
+
+            int key = instruments[i];
+
+            for (int j = 0; j < 16; j++) {
+                JCheckBox jc = (JCheckBox) checkboxList.get(j + (16 * i));
+                if (jc.isSelected()) {
+                    trackList[j] = key;
+                } else {
+                    trackList[j] = 0;
+                }
+            }
+
+            makeTracks(trackList);
+            track.add(makeEvent(176, 1, 127, 0, 16));
+        }
+
+        track.add(makeEvent(192, 9, 1, 0, 15));
+        try {
+            sequencer.setSequence(sequence);
+            sequencer.setLoopCount(sequencer.LOOP_CONTINUOUSLY);
+            sequencer.start();
+            sequencer.setTempoInBPM(120);
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public class MyStartListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            buildTrackAndStart();
+        }
+    }
+
+    public class MyStopListener implements ActionListener {
+        public void actionPerformed(ActionEvent a) {
+            sequencer.stop();
+        }
+    }
+
+    public class MyUpTempoListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            float tempoFactor = sequencer.getTempoFactor();
+            sequencer.setTempoFactor((float) (tempoFactor * 1.03));
+        }
+    }
+
+    public class MyDownTempoListener implements ActionListener {
+        public void actionPerformed(ActionEvent a) {
+            float tempoFactor = sequencer.getTempoFactor();
+            sequencer.setTempoFactor((float)(tempoFactor * .97));
+        }
+    }
+
+    public void makeTracks (int[] list) {
+        for (int i = 0; i < 16; i++) {
+            int key = list[i];
+
+            if (key != 0) {
+                track.add(makeEvent(144,9,key,100,i));
+                track.add(makeEvent(128,9,key,100,i+1));
+            }
+        }
+    }
+
+    public MidiEvent makeEvent(int comd, int chan, int one, int two, int tick) {
+        MidiEvent event = null;
+        try {
+            ShortMessage a = new ShortMessage();
+            a.setMessage(comd, chan, one, two);
+            event = new MidiEvent(a, tick);
+        } catch (Exception e) {e.printStackTrace();}
+        return event;
+    }
+
+}
+```
+
+![img_29.png](img_29.png)
+
+### Глава № 14. Сериализация и ввод/вывод файлов
+
+Сохранять данные можно следующими способами:
+1. Если они будут использоваться только внутри создавшей их программы, можно использовать сериализацию. Тогда объекты "сдувается"/"сплющиваются" при сохранении, помещаясь в файл при преобразовании, а при получении - снова "надуваются"/"наполняются жизнью". При сериализации сохраняется состояние объекта, то есть значения всех его переменных.
+2. Если данные будут использоваться другими программами, то можно создать простой текстовый файл, но для этого придется более сложным образом считывать состояния объектов.
+
+Для записи объекта в файл нам потребуются потоки. Они бывают **цепными** и **потоками для соединения**.
+
+***Цепные*** потоки высокоуровневые; они работают с объектами, но они не могут взаимодействовать с источником или пунктом назначения напрямую, для взаимодействия им нужны потоки для соединения (или другие потоки). Пример: `ObjectOutputStream`.
+
+***Потоки для соединения*** низкоуровневые; они работают с байтами и помогают связывать цепные потоки. Могут представлять собой подключение к источнику или пункту назначения. Обычно это файл, соединение через сетевой сокет или консоль. Пример: `FileOutputStream`.
+
+![img_30.png](img_30.png)
+
+Процесс сохранения сериализованного объекта в файл описан ниже. Значения переменных для ширины и высоты записываются в файл foo.ser вместе с краткой информацией, необходимой JVM для восстановления объекта (например, сведениями о типе класса). Если файл foo.ser не существует, он будет создан автоматически.
+```Java
+// создаем новый объект
+Foo myFoo = new Foo();
+myFoo.setWidth(37);
+myFoo.setHeight(70);
+
+// операции ввода/вывод могут вызывать исключения        
+try {
+    // Создаем экземпляр FileOutputStream, который соединится с файлом, а затем прикрепится к ObjectOutputStream,
+    // чтобы записать данные в файл, если он существует. В противном случае будет создан новый файл с именем "foo.ser".
+    FileOutputStream fs = new FileOutputStream("foo.ser");
+    ObjectOutputStream os = new ObjectOutputStream(fs); // связываем объект ObjectOutputStream с потоком соединения, говорим ему записать объект
+    os.writeObject(myFoo); // записываем объект в поток
+    os.close(); // закрываем поток вывода объектов, так как, когда мы закрываем поток верхнего уровня, закрывается и поток нижнего
+} catch (Exception ex) {ex.printStackTrace();}
+```
+
+При сериализации объекта, сохраняется его полный граф. То есть сериализуются также все объекты, на который ссылается наш объект с помощью своих переменных экземпляра. И все объекты, на которые ссылаются те объекты, тоже сериализуются. И т.д., и т.д. Все это происходит автоматически.
+
+Чтобы класс был сериализуемым, он должен реализовывать интерфейс `Serializable`, иначе при выполнении сериализации произойдет сбой. Этот интерфейс не содержит методов, поэтому он известен как разметочный или теговый. Также должны подлежать сериализации классы всех объектов, ссылки на которые содержит сериалуземый объект. Поэтому, если объект `Pond` сериализуемого класса содержит ссылку на объект `Duck` не сериализуемого класса, то при попытке запустить процесс сериализации мы получим ошибку.
+
+Если мы хотим пропустить какую-то переменную в процессе сериализации (в том числе если эта переменная ссылается на несереализуемый объект), нужно пометить ее ключевым словом `transient`:
+```Java
+import java.io.Serializable;
+
+class Chat implements Serializable {
+    transient String currentId; // при сериализации эта переменная будет пропущена
+    String userName; // во время сериализации эта переменная будет сохранена как часть состояния объекта
+    // еще код
+} 
+```
+
+Если при сериализации два объекта содержат ссылку на один и тот же объект (например, в классе Kennel содержится два объекта типа Cat, которые оба ссылаются на один объект Owner), то "умная сериализация" сохраняет только один объект, а при десереализации восстанавливаются любые ссылки на него.
+
+#### Десереализация
+
+Этот процесс похож на сериализацию, выполненную в обратном порядке:
+```Java
+FileInputStream fileStream = new FileInputStream("MyGame.ser"); // Объект FileInputStream знает, как соединиться с существующим файлом.
+// Если файла "MyGame.ser" не существует, будет выброшено исключение.
+ObjectInputStream objectStream = new ObjectInputStream(fs); // ObjectInputStream позволяет прочитать объекты, но не может напрямую 
+// соединиться с файлом. Ему нужно подключаться к потоку для соединения, в данном случае к FileInputStream.
+        
+/* Считываем объекты.
+Каждый раз, когда мы вызываем метод readObject(), мы получаем следующий объект в потоке. В итоге мы будем прочитывать их в том
+же порядке, в каком они были записаны. Мы получим большое исключение,если попытаемся прочитать больше объектов, чем было записано. */
+Object one = os.readObject();
+Object two = os.readObject();
+Object three = os.readObject();
+
+/* Приводим объекты.
+Возвращаемое значение метода readObject имеет тип Object, так что его нужно привести обратно к типу, которому он принадлежит. */
+GameCharacter elf = (GameCharacter) one;
+GameCharacter troll = (GameCharacter) two;
+GameCharacter magician = (GameCharacter) three;
+
+/* Закрывая верхний поток, мы автоматически закрываем и нижний, так что FileInputStream (и файл) закроются автоматически. */
+os.close();
+```
+
+![img_31.png](img_31.png)
+
+При десериализации JVM определяет (по информации сохраненной вместе с сериализованным объектом) тип класса объекта. JVM пытается найти и загрузить тип класса объекта. Если она не может найти и/или загрузить класс, то вызывает исключение и десериализация завершается неудачей. Переменным объекта присваивают значения из сериализованного состояния. Переходным переменным присваивают пустое значение (для ссылок на объекты) или значение по умолчанию (0, false и т.д.), если речь идет о простых типах.
+
+***Важно!*** Статические переменные не сериализуются. Как известно, статический означает "один на класс", а не "один на объект". Так что при десериализации класс десереализуемого объекта уже содержит статические переменные, поэтому новые ему не нужны. Мораль: ***не делайте сериализуемые объекты зависимыми от динамически изменяемой статической переменной!*** При возвращении объекта она может стать другой.

@@ -48,9 +48,9 @@ class Employee {
 | 12 | ~~Графический пользовательский интерфейс~~ | 376 - 421 (46 страниц) | Очень графическая история |
 | 13 | ~~Работа с библиотекой Swing~~ | 422 - 451 (30 страниц) | Улучшай свои навыки |
 | 14 | ~~Сериализация и ввод/вывод файлов~~ | 452 - 492 (41 страница) | Сохранение объектов |
-| 15 | Сеть и потоки | 493 - 550 (58 страниц) | Устанавливаем соединение |
-| 16 | Коллекции и обобщения | 551 - 602 (52 страницы) | Структуры данных |
-| 17 | Пакеты, JAVA-архивы и развертывание приложения | 603 - 627 (25 страниц) | Выпусти свой код |
+| 15 | ~~Сеть и потоки~~ | 493 - 550 (58 страниц) | Устанавливаем соединение |
+| 16 | ~~Коллекции и обобщения~~ | 551 - 602 (52 страницы) | Структуры данных |
+| 17 | Пакеты, Java-архивы и развертывание приложения | 603 - 627 (25 страниц) | Выпусти свой код |
 | 18 | Удаленное развертывание с помощью RMI | 628 - 669 (42 страницы) | Распределенные вычисления |
 
 ---
@@ -2090,7 +2090,7 @@ writer.print("Другое сообщение"); // не добавляет пе
 
 Создание нового потока и переключение между ним и основным происходит примерно так:
 1. JVM вызывает метод `main()`
-2. Метод `main()` запускает новый поток. Главный поток временно приостановлен, пока стартует новый.
+2. Метод `main()` запускает новый поток. Главный поток приостановлен, пока стартует новый.
 ```Java
 Runnable r = new MyThreadJob();
 Thread t = new Thread(r);
@@ -2541,3 +2541,274 @@ public class Jukebox5 {
 **Вместо списка нам нужно множество**
 
 Судя по API для работы с коллекциями, существует **три** главных интерфейса - **List** (список), **Set** (множество) и **Map** (отображение, или ассоциативный массив). ArrayList - список, но нам, похоже, нужно именно множество.
+
+***Список*** **применяется, когда имеет значение порядок следования.** Это коллекции, которые **учитывают индекс (позицию)**. Списки знают, где хранятся их элементы. Сразу несколько элементов могут ссылаться на один объект.
+
+![img_40.png](img_40.png)
+
+***Множество*** **используется, когда имеет значение уникальность.** Это коллекции, которые **не допускают дублирования**. Множества знают, содержат ли они объект. У нас никогда не может быть несколько элементов, ссылающихся на один и тот же объект (или на два идентичных объекта).
+
+![img_41.png](img_41.png)
+
+***Отображение*** **применяется, когда нужно найти что-нибудь по ключу.** Это коллекции, в которых **используются пары "ключ - значение"**. Отображению известно значение, которое связано с данным ключом. У нас может быть два ключа, ссылающихся на одно и то же значение, но они не могут дублироваться. В качестве ключей, как правило, используются строковые имена (например, создаются списки свойств имя/значение), но ключом также может выступать любой объект.
+
+![img_42.png](img_42.png)
+
+Отображения не наследуют java.util.Collection, но рассматриваются как часть фреймворка для работы с коллекциями в Java. Поэтому потомки Map - это тоже коллекции. Ниже представлена неполная версия API для работы с коллекциями.
+
+![img_43.png](img_43.png)
+
+Попробуем создать множество HashSet, чтобы убрать дубликаты:
+```Java
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+
+public class Jukebox6 {
+    // Меняем тип для ArrayList со String на Song.
+    ArrayList<Song> songList = new ArrayList<Song>();
+
+    public static void main(String[] args) {
+        new Jukebox6().go();
+    }
+
+    class NameCompare implements Comparator<Song> {
+        public int compare(Song one, Song two) {
+            return one.getTitle().compareTo(two.getTitle());
+        }
+    }
+    class ArtistCompare implements Comparator<Song> {
+        public int compare(Song one, Song two) {
+            return one.getArtist().compareTo(two.getArtist());
+        }
+    }
+
+    public void go() {
+        getSongs();
+        System.out.println("Исходный список: " + songList);
+        NameCompare nameCompare = new NameCompare();
+        Collections.sort(songList, nameCompare);
+        System.out.println("Список, отсортированный по названию песни: " + songList);
+
+        ArtistCompare artistCompare = new ArtistCompare();
+        Collections.sort(songList, artistCompare);
+        System.out.println("Список, отсортированный по имени исполнителя: " + songList);
+
+        HashSet<Song> songSet = new HashSet<Song>();
+        songSet.addAll(songList);
+        System.out.println("Множество песен: " + songSet);
+    }
+
+    void getSongs() {
+        try {
+            File file = new File("SongListMoreWithDuplicates.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                addSong(line);
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    void addSong(String lineToParse) {
+        String[] tokens = lineToParse.split("/");
+        Song nextSong = new Song(tokens[0], tokens[1], tokens[2], tokens[3]);
+        songList.add(nextSong);
+    }
+```
+
+Вывод у программы будет следующий:
+
+![img_44.png](img_44.png)
+
+Как можно заметить, дубликаты не исчезли, а также сбилась сортировка.
+
+hashcode() - это метод, наследованный из класса Object, который для каждого объекта создает уникальный номер.
+
+Чтобы объекты obj1 и obj2 рассматривались как равные, нужно чтобы выполнялись два условия:
+- obj1.equals(obj2) должно возвращать true
+- hashcode(obj1) должен быть равным hashcode(obj2)
+
+Чтобы два разных объекта (такие, как наши объекты Song из кода выше) считались равными, нужно переопределить методы hashcode() и equals(), унаследованные от класса Object.
+
+Внесем изменения в класс Song, переопределив методы hashcode() и equals(). Благодаря этому две песни с одинаковым названием будут считаться равными.
+
+```Java
+public class Song implements Comparable<Song>{
+    String title;
+    String artist;
+    String rating;
+    String bpm;
+
+    public int compareTo(Song s) {
+        return title.compareTo(s.getTitle());
+    }
+
+    public Song(String t, String a, String r, String b) {
+        title = t;
+        artist = a;
+        rating = r;
+        bpm = b;
+    }
+    public boolean equals(Object aSong) {
+        Song s = (Song) aSong;
+        return getTitle().equals(s.getTitle());
+    }
+
+    public int hashCode() {
+        return title.hashCode();
+    }
+
+    public String getArtist()
+    {
+        return artist;
+    }
+
+    public String getBpm()
+    {
+        return bpm;
+    }
+
+    public String getRating()
+    {
+        return rating;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    // Переопределяем метод toString(), потому что при вызове System.out.println(aSongObject) хотим
+    // увидеть название песни. Этот вызов происходит при вызове каждого элемента списка.
+    public String toString() {
+        return String.format("%s", title);
+    }
+}
+```
+
+Вывод программы будет следующим:
+
+![img_45.png](img_45.png)
+
+Дубликаты из множества были удалены, но оно осталось неотсортированным. При этом применить к нему метод Collections.sort() нельзя, так как метод принимает только наследников List, коим HashSet не является.
+
+*List работает медленнее, чем Set. Когда порядок не важен и не нужны дубликаты, лучше использовать Set.*
+
+Для получения сортированного множества обратимся к классу TreeSet, которое сортирует по определенному признаку все элементы. Если мы хотим отсортировать элементы какого-то кастомного типа, мы должны реализовать интерфейс Comparable или передать объект типа Comparator.
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class Jukebox8
+{
+    ArrayList<Song> songList = new ArrayList<Song>();
+
+    public static void main(String[] args) {
+        new Jukebox8().go();
+    }
+
+    public void go() {
+        getSongs();
+        System.out.println("Исходный список песен: " + songList);
+        Collections.sort(songList);
+        System.out.println("Список, отсортированный по названию песни: " + songList);
+
+        TreeSet<Song> songSet = new TreeSet<Song>();
+        songSet.addAll(songList);
+        System.out.println("Отсортированное по названию множество песен без дубликатов: " + songSet);
+    }
+
+    void getSongs() {
+        try {
+            File file = new File("SongListMoreWithDuplicates.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                addSong(line);
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    void addSong(String lineToParse) {
+        String[]tokens = lineToParse.split("/");
+        Song nextSong = new Song(tokens[0], tokens[1], tokens[2], tokens[3]);
+        songList.add(nextSong);
+    }
+}
+```
+
+Результат запуска программы:
+
+![img_46.png](img_46.png)
+
+Посмотрим на пример использования HashMap (отображений):
+
+```java
+import java.util.HashMap;
+
+public class TestMap {
+
+    public static void main(String[] args) {
+        HashMap<String, Integer> scores = new HashMap<>(); // HashMap нуждается в двух типовых параметрах: для ключа и для значения.
+
+        // Вместо add() используется put(), который по понятным причинам принимает два аргумента (ключ, значение).
+        scores.put("Кэти", 42);
+        scores.put("Берт", 343);
+        scores.put("Скайлер", 420);
+
+        System.out.println(scores);
+        System.out.println(scores.get("Берт")); // Метод get() принимает ключ и возвращает значение - в нашем случае 343.
+    }
+}
+```
+
+Результат выполнения программы:
+
+![img_47.png](img_47.png)
+
+**Заполнители**
+
+Если мы напишем метод `public void takeAnimals(ArrayList<Animal> animals)`, то мы не сможем передавать в него объекты типа Dog или Cat. Если мы хотим, чтобы метод мог принимать списки типа Animal или его потомков, мы можем использовать заполнители:
+```Java
+public void takeAnimals(ArrayList<? extends Animal> animals){
+    for(Animal a: animals) {
+        a.eat();
+    }
+}
+```
+
+Но метод, принимающий списки, использующие заполнители, не может в себе содержать добавление элементов. То есть, код ниже не скомпилируется:
+```Java
+public void takeAnimals(ArrayList<? extends Animal> animals){
+    for(Animal a: animals) {
+        animals.add(new Cat());
+    }
+}
+```
+
+```Java
+// Кстати, это:
+public <T extends Animal> void takeThing(ArrayList<T> list)
+// делает то же самое, что и это:
+public void takeThing(ArrayList<? extends Animal> list)
+```
+
+Так что синтаксис выше равнозначен друг другу.
+
+Какую же нам конструкцию выбирать, если они делают одно и то же? Все зависит от того, хотим ли мы использовать T еще где-нибудь. Например, нам нужно получить метод с двумя аргументами в виде списков, и типы этих списков наследуют Animal. В таком случае эффективнее будет объявить типовой параметр только один раз:
+```java
+public <T extends Animal> void takeThing(ArrayList<T> one, ArrayList<T> two)
+```
+вместо того чтобы писать:
+```java
+public void takeThing(ArrayList<? extends Animal> one, ArrayList<? extends Animal> two)
+```
+
+### Глава № 17. Пакеты, Java-архивы и развертывание приложения
+
